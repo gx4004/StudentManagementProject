@@ -1,0 +1,39 @@
+{
+  "Version": 1,
+  "Hash": "2+Czk0kDfu4HyqSS/AiZ/7M6bivJ4x899dtLRi4alJE=",
+  "Source": "WebApiWork06",
+  "BasePath": "_content/WebApiWork06",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "WebApiWork06/wwwroot",
+      "Source": "WebApiWork06",
+      "ContentRoot": "/Users/goncuegemen/RiderProjects/WebApiGorev2/WebApi/WebApiWork06/wwwroot/",
+      "BasePath": "_content/WebApiWork06",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "/Users/goncuegemen/RiderProjects/WebApiGorev2/WebApi/WebApiWork06/wwwroot/root.html",
+      "SourceId": "WebApiWork06",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/goncuegemen/RiderProjects/WebApiGorev2/WebApi/WebApiWork06/wwwroot/",
+      "BasePath": "_content/WebApiWork06",
+      "RelativePath": "root.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/root.html"
+    }
+  ]
+}

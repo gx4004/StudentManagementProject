@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        h2 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            color: #343a40;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary,
+        .btn-warning,
+        .btn-success,
+        .btn-danger {
+            margin-top: 10px;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h2>Student List</h2>
+    <button id="refreshButton" class="btn btn-success mb-3">Refresh</button>
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Class</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="studentTableBody">
+        <!-- Students will be loaded here -->
+        </tbody>
+    </table>
+    <div id="responseMessage" class="mt-3"></div>
+
+    <h2>Add Student</h2>
+    <form id="studentForm">
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" class="form-control" required>
+            <div id="firstNameError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" class="form-control" required>
+            <div id="lastNameError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+            <label for="class">Class:</label>
+            <input type="text" id="class" name="class" class="form-control">
+            <div id="classError" class="error-message"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Student</button>
+    </form>
+
+    <h2>Update Student</h2>
+    <form id="updateStudentForm">
+        <div class="form-group">
+            <label for="updateId">Student ID:</label>
+            <input type="number" id="updateId" name="updateId" class="form-control" required>
+            <div id="updateIdError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+            <label for="updateFirstName">First Name:</label>
+            <input type="text" id="updateFirstName" name="updateFirstName" class="form-control" required>
+            <div id="updateFirstNameError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+            <label for="updateLastName">Last Name:</label>
+            <input type="text" id="updateLastName" name="updateLastName" class="form-control" required>
+            <div id="updateLastNameError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+            <label for="updateClass">Class:</label>
+            <input type="text" id="updateClass" name="updateClass" class="form-control">
+            <div id="updateClassError" class="error-message"></div>
+        </div>
+        <button type="submit" class="btn btn-warning">Update Student</button>
+    </form>
+</div>
+
+<script>
+    function loadStudents() {
+        fetch('http://localhost:5084/api/Students')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('studentTableBody');
+                tableBody.innerHTML = ''; // Clear the table
+
+                data.forEach(student => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                            <td>${student.id}</td>
+                            <td>${student.firstName}</td>
+                            <td>${student.lastName}</td>
+                            <td>${student.class}</td>
+                            <td>
+                                <button class="btn btn-danger" onclick="deleteStudent(${student.id})">Delete</button>
+                            </td>
+                        `;
+
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                document.getElementById('responseMessage').textContent = 'An error occurred: ' + error.message;
+            });
+    }
+
+    document.getElementById('refreshButton').addEventListener('click', loadStudents);
+
+    document.addEventListener('DOMContentLoaded', loadStudents);
+
+    document.getElementById("studentForm").addEventListener("submit", function (event) {
+        if (!validateForm()) {
+            event.preventDefault();
+        }
+    });
+
+    function validateForm() {
+        let isValid = true;
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const className = document.getElementById('class').value.trim();
+
+        document.getElementById('firstNameError').textContent = '';
+        document.getElementById('lastNameError').textContent = '';
+        document.getElementById('classError').textContent = '';
+
+        if (firstName === '') {
+            document.getElementById('firstNameError').textContent = 'First name is required.';
+            isValid = false;
+        }
+        if (lastName === '') {
+            document.getElementById('lastNameError').textContent = 'Last name is required.';
+            isValid = false;
+        }
+        if (className !== '' && className.length > 10) {
+            document.getElementById('classError').textContent = 'Class name should not exceed 10 characters.';
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    document.getElementById('studentForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        if (validateForm()) {
+            const student = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                class: document.getElementById('class').value
+            };
+
+            fetch('http://localhost:5084/api/Students', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(student)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to add student.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('responseMessage').textContent = 'Student added successfully!';
+                    document.getElementById('studentForm').reset();
+                    loadStudents(); 
+                })
+                .catch(error => {
+                    document.getElementById('responseMessage').textContent = 'An error occurred: ' + error.message;
+                });
+        }
+    });
+
+    document.getElementById('updateStudentForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const studentId = document.getElementById('updateId').value.trim();
+        const updatedStudent = {
+            firstName: document.getElementById('updateFirstName').value.trim(),
+            lastName: document.getElementById('updateLastName').value.trim(),
+            class: document.getElementById('updateClass').value.trim()
+        };
+
+        if (studentId === '') {
+            document.getElementById('updateIdError').textContent = 'Student ID is required.';
+            return;
+        }
+
+        fetch(`http://localhost:5084/api/Students/${studentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedStudent)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.title || 'Failed to update student.');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('responseMessage').textContent = 'Student updated successfully!';
+                document.getElementById('updateStudentForm').reset(); 
+                loadStudents(); 
+            })
+            .catch(error => {
+                document.getElementById('responseMessage').textContent = 'An error occurred: ' + error.message;
+            });
+    });
+
+    function deleteStudent(studentId) {
+        if (confirm('Are you sure you want to delete this student?')) {
+            fetch(`http://localhost:5084/api/Students/${studentId}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete student.');
+                    }
+                    document.getElementById('responseMessage').textContent = 'Student deleted successfully!';
+                    loadStudents(); 
+                })
+                .catch(error => {
+                    document.getElementById('responseMessage').textContent = 'An error occurred: ' + error.message;
+                });
+        }
+    }
+</script>
+</body>
+
+</html>
